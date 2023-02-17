@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 	"unicode"
 )
 
@@ -13,6 +14,18 @@ func isCamelCase(str string) bool {
 			return true
 		}
 	}
+	return false
+}
+
+// check if the path include part of any item blacklist
+func isInBlackList(str string) bool {
+	blackList := []string{"/node_modules", "/lib/", "/bin/", "/dist/", "/build/", "DS_Store", "README"}
+	for _, item := range blackList {
+		if strings.Contains(str, item) {
+			return true
+		}
+	}
+
 	return false
 }
 
@@ -56,6 +69,9 @@ func ListCamelCasePaths(path string) []string {
 		func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
+			}
+			if isInBlackList(path) {
+				return nil
 			}
 			if isCamelCase(info.Name()) {
 				files = append(files, path)
